@@ -15,29 +15,11 @@ class _TodoListPageState extends State<TodoListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              //Header view
-              Expanded(
-                flex: 1,
-                child: HeaderView(),
-              ),
-              //Task info view
-              Expanded(
-                flex: 1,
-                child: Text('data'),
-              ),
-              //Task list view
-              Expanded(
-                flex: 7,
-                child: Text('data'),
-              )
-            ],
-          ),
-        ),
-        floatingActionButton: Text('data'));
+    return Scaffold(
+      body: SafeArea(
+        bottom: false,
+        child: TasksView(),
+      ),
+    );
   }
 }
