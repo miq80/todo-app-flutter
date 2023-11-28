@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:todo_application/components/my_textfield.dart';
+
 import 'package:todo_application/views/todo_pages/tasks_form.dart';
-import 'package:todo_application/views/header_view.dart';
+
 import 'package:todo_application/views/todo_pages/tasks_list.dart';
 
 class TodoListPage extends StatefulWidget {
@@ -21,6 +21,7 @@ class _TodoListPageState extends State<TodoListPage> {
         length: 2,
         child: Scaffold(
           appBar: AppBar(
+            backgroundColor: const Color.fromARGB(221, 16, 16, 16),
             bottom: const TabBar(
               tabs: [
                 Tab(
