@@ -27,7 +27,9 @@ class LoginPage extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const TodoListPage()));
     } catch (e) {
       // Handle sign-in errors here
-      print('Error during sign-in: $e');
+      const errorBar = SnackBar(content: Text('Wrong email or password!'));
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(errorBar);
     }
   }
 
