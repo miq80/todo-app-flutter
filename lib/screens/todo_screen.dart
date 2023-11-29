@@ -12,8 +12,6 @@ class TodoListPage extends StatefulWidget {
 }
 
 class _TodoListPageState extends State<TodoListPage> {
-  final _textController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

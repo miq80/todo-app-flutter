@@ -1,20 +1,20 @@
 import 'dart:async';
-
-import 'package:uuid/uuid.dart';
 import 'todo_model.dart';
 
 class TodoBloc {
   final _todoController = StreamController<List<Todo>>.broadcast();
-  final _uuid = Uuid();
 
-  List<Todo> _todos = [];
+  final List<Todo> _todos = [];
 
   Stream<List<Todo>> get todos => _todoController.stream;
 
-  void addTodo(String title) {
+  void addTodo(
+      {required String title, required DateTime time, required Todo newTask}) {
     final newTodo = Todo(
-      id: _uuid.v4(),
+      id: newTask.id,
       title: title,
+      description: newTask.description,
+      time: time,
     );
     _todos.add(newTodo);
     _updateTodos();
