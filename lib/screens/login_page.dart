@@ -1,10 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
 import 'package:todo_application/components/my_button.dart';
 import 'package:todo_application/components/my_textfield.dart';
 import 'package:todo_application/screens/registration_page.dart';
-import 'package:todo_application/screens/todo_screen.dart';
 
 // ... (Previous imports)
 
@@ -23,8 +21,7 @@ class LoginPage extends StatelessWidget {
 
       // After successful sign-in, navigate to another page (e.g., Home)
       // ignore: use_build_context_synchronously
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const TodoListPage()));
+      Navigator.of(context).pushReplacementNamed('/todo');
     } catch (e) {
       // Handle sign-in errors here
       const errorBar = SnackBar(content: Text('Wrong email or password!'));
