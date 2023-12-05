@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:todo_application/todo/todo_bloc.dart';
+import 'package:todo_application/todo/todo_model.dart';
 
 import 'package:todo_application/views/todo_pages/tasks_form.dart';
 
 import 'package:todo_application/views/todo_pages/tasks_list.dart';
 
 class TodoListPage extends StatefulWidget {
-  const TodoListPage({super.key});
+  TodoListPage({super.key,});
+
 
   @override
   State<TodoListPage> createState() => _TodoListPageState();
@@ -33,10 +36,14 @@ class _TodoListPageState extends State<TodoListPage> {
               ],
             ),
           ),
-          body: TabBarView(
+          body: const TabBarView(
             children: [
-              TaskFormView(),
-              const TasksList(),
+              TaskFormView(
+                
+              ),
+              TasksList(
+                
+              ),
             ],
           ),
         ),

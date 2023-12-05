@@ -9,7 +9,7 @@ class Todo {
       {required this.id,
       required this.title,
       this.isCompleted = false,
-      this.description,
+      required this.description,
       required this.time});
 
   Todo copyWith(
@@ -25,4 +25,23 @@ class Todo {
         description: description ?? this.description,
         time: time ?? this.time);
   }
+
+  Map<String, dynamic> toJSON() => {
+        'id': id,
+        'title': title,
+        'isCompleted': isCompleted,
+        'description': description,
+        'time': time.toIso8601String()
+      };
+
+  Todo.fromJSON(Map<String, dynamic> json)
+      : this(
+          id: json['id'],
+          title: json['title'],
+          isCompleted: json['isCompleted'],
+          description: json['description'],
+          time: DateTime.parse(
+            json['time'],
+          ),
+        );
 }

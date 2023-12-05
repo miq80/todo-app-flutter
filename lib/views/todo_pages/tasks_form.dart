@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_application/components/my_textfield.dart';
 import 'package:todo_application/todo/todo_bloc.dart';
 import 'package:todo_application/components/my_button.dart';
 import 'package:todo_application/todo/todo_model.dart';
 
 class TaskFormView extends StatefulWidget {
-  const TaskFormView({Key? key}) : super(key: key);
+  const TaskFormView({
+    Key? key,
+  }) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -55,28 +58,17 @@ class _TaskFormViewState extends State<TaskFormView> {
     }
   }
 
-  void addTask() {
+  void addTask(BuildContext context) {
     if (_textController.text.isNotEmpty) {
-      Todo newTask = Todo(
-        id: UniqueKey().toString(),
-        title: _textController.text,
-        description: _descriptionController.text,
-        time: _time,
-      );
-
-      todoBloc.addTodo(
-        title: _textController.text,
-        time: _time,
-        newTask: newTask,
-      );
+      context.read<TodoBloc>().add(
+            AddTodoEvent(
+                title: _textController.text,
+                time: _time,
+                description: _descriptionController.text),
+          );
 
       _textController.clear();
       _descriptionController.clear();
-
-      // Log information to the console
-      debugPrint(
-        'Task added: ${newTask.title}, Description: ${newTask.description}, Time: ${newTask.time}',
-      );
     }
   }
 
@@ -134,7 +126,7 @@ class _TaskFormViewState extends State<TaskFormView> {
                     ),
                   ),
                   const SizedBox(height: 15),
-                  MyButton(onTap: addTask),
+                  MyButton(onTap: () => addTask(context)),
                 ],
               ),
             ),

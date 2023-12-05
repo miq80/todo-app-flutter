@@ -1,46 +1,110 @@
-import 'dart:async';
-import 'todo_model.dart';
+import 'package:bloc/bloc.dart';
+import 'package:todo_application/todo/todo_model.dart';
+import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class TodoBloc {
-  final _todoController = StreamController<List<Todo>>.broadcast();
+abstract class TodoEvent {}
 
-  final List<Todo> _todos = [];
+class AddTodoEvent extends TodoEvent {
+  final String title;
+  final DateTime time;
+  final String description;
 
-  Stream<List<Todo>> get todos => _todoController.stream;
-
-  void addTodo(
-      {required String title, required DateTime time, required Todo newTask}) {
-    final newTodo = Todo(
-      id: newTask.id,
-      title: title,
-      description: newTask.description,
-      time: time,
-    );
-    _todos.add(newTodo);
-    _updateTodos();
-  }
-
-  void toggleTodo(String id) {
-    final index = _todos.indexWhere((todo) => todo.id == id);
-    if (index != -1) {
-      _todos[index] =
-          _todos[index].copyWith(isCompleted: !_todos[index].isCompleted);
-      _updateTodos();
-    }
-  }
-
-  void removeTodo(String id) {
-    _todos.removeWhere((todo) => todo.id == id);
-    _updateTodos();
-  }
-
-  void _updateTodos() {
-    _todoController.add(List.from(_todos));
-  }
-
-  void dispose() {
-    _todoController.close();
-  }
+  AddTodoEvent({
+    required this.title,
+    required this.time,
+    required this.description,
+  });
 }
 
-final todoBloc = TodoBloc();
+class ToggleTodoEvents extends TodoEvent {
+  final String id;
+
+  ToggleTodoEvents({required this.id});
+}
+
+class RemoveTodoEvent extends TodoEvent {
+  final String id;
+
+  RemoveTodoEvent({required this.id});
+}
+
+class FetchTodos extends TodoEvent {}
+
+class TodoState {
+  final List<Todo> todos;
+
+  TodoState({required this.todos});
+}
+
+class TodoBloc extends Bloc<TodoEvent, TodoState> {
+  final firestoreInstance = FirebaseFirestore.instance.collection('tasks');
+
+  TodoBloc() : super(TodoState(todos: [])) {
+    on<AddTodoEvent>(_addTodo);
+
+    on<ToggleTodoEvents>(_toggleTodo);
+
+    on<RemoveTodoEvent>(_removeTodo);
+
+    on<FetchTodos>(fetchTodos);
+
+    add(FetchTodos());
+  }
+
+  void fetchTodos(FetchTodos event, Emitter<TodoState> emit) async {
+    final snapshots = await firestoreInstance.get();
+    final todos = snapshots.docs.map((e) => Todo.fromJSON(e.data())).toList();
+    emit(TodoState(todos: todos));
+  }
+
+  void _addTodo(AddTodoEvent event, Emitter<TodoState> emit) {
+    Todo todo = Todo(
+      id: const Uuid().v4(),
+      title: event.title,
+      time: event.time,
+      description: event.description,
+    );
+    final oldTodos = state.todos;
+    emit(
+      TodoState(
+        todos: [...oldTodos, todo],
+      ),
+    );
+    firestoreInstance.doc(todo.id).set(todo.toJSON());
+  }
+
+  void _toggleTodo(ToggleTodoEvents event, Emitter<TodoState> emit) {
+    final stateTodos = state.todos;
+    final todoToggle = stateTodos.firstWhere(
+      (todo) {
+        return todo.id == event.id;
+      },
+    );
+    final toggledTodo = todoToggle.copyWith(
+      isCompleted: !todoToggle.isCompleted,
+    );
+    final updatedTodos = stateTodos.map((todo) {
+      if (todo.id == toggledTodo.id) {
+        return toggledTodo;
+      }
+      return todo;
+    }).toList();
+    emit(TodoState(todos: updatedTodos));
+    firestoreInstance.doc(toggledTodo.id).update(
+      {'isCompleted': toggledTodo.isCompleted},
+    );
+  }
+
+  void _removeTodo(RemoveTodoEvent event, Emitter<TodoState> emit) {
+    final stateTodos = state.todos;
+
+    final updatedTodo = stateTodos
+        .where(
+          (todo) => todo.id != event.id,
+        )
+        .toList();
+    emit(TodoState(todos: updatedTodo));
+    firestoreInstance.doc(event.id).delete();
+  }
+}
